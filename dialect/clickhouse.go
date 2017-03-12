@@ -9,7 +9,7 @@ import (
 type clickhouse struct{}
 
 func (d clickhouse) QuoteIdent(s string) string {
-	return quoteIdent(s, "`")
+	return quoteIdent(s, "")
 }
 
 func (d clickhouse) EncodeString(s string) string {

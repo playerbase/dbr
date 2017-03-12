@@ -13,11 +13,11 @@ func TestClickhouse(t *testing.T) {
 	}{
 		{
 			in:   "table.col",
-			want: "`table`.`col`",
+			want: "table.col",
 		},
 		{
 			in:   "col",
-			want: "`col`",
+			want: "col",
 		},
 	} {
 		assert.Equal(t, test.want, Clickhouse.QuoteIdent(test.in))

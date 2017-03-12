@@ -1,4 +1,4 @@
-# gocraft/dbr (database records) [![GoDoc](https://godoc.org/github.com/playerbase/web?status.png)](https://godoc.org/github.com/playerbase/dbr)
+# gocraft/dbr (database records) [![GoDoc](https://godoc.org/github.com/gocraft/web?status.png)](https://godoc.org/github.com/gocraft/dbr)
 
 gocraft/dbr provides additions to Go's database/sql for super fast performance and convenience.
 
@@ -279,10 +279,10 @@ type Builder interface {
 
 gocraft offers a toolkit for building web apps. Currently these packages are available:
 
-* [gocraft/web](https://github.com/playerbase/web) - Go Router + Middleware. Your Contexts.
-* [gocraft/dbr](https://github.com/playerbase/dbr) - Additions to Go's database/sql for super fast performance and convenience.
-* [gocraft/health](https://github.com/playerbase/health) -  Instrument your web apps with logging and metrics.
-* [gocraft/work](https://github.com/playerbase/work) - Process background jobs in Go.
+* [gocraft/web](https://github.com/gocraft/web) - Go Router + Middleware. Your Contexts.
+* [gocraft/dbr](https://github.com/gocraft/dbr) - Additions to Go's database/sql for super fast performance and convenience.
+* [gocraft/health](https://github.com/gocraft/health) -  Instrument your web apps with logging and metrics.
+* [gocraft/work](https://github.com/gocraft/work) - Process background jobs in Go.
 
 These packages were developed by the [engineering team](https://eng.uservoice.com) at [UserVoice](https://www.uservoice.com) and currently power much of its infrastructure and tech stack.
 

@@ -1,11 +1,11 @@
 package dbr
 
 type union struct {
-	builder []SelectBuilder
+	builder []Builder
 	all     bool
 }
 
-func Union(builder ...SelectBuilder) interface {
+func Union(builder ...Builder) interface {
 	Builder
 	As(string) Builder
 } {
@@ -14,7 +14,7 @@ func Union(builder ...SelectBuilder) interface {
 	}
 }
 
-func UnionAll(builder ...SelectBuilder) interface {
+func UnionAll(builder ...Builder) interface {
 	Builder
 	As(string) Builder
 } {

@@ -6,7 +6,8 @@ import "fmt"
 type SelectStmt struct {
 	raw
 
-	IsDistinct bool
+	IsDistinct    bool
+	HasWithTotals bool
 
 	Column    []interface{}
 	Table     interface{}
@@ -92,6 +93,10 @@ func (b *SelectStmt) Build(d Dialect, buf Buffer) error {
 		}
 	}
 
+	if b.HasWithTotals {
+		buf.WriteString(" WITH TOTALS ")
+	}
+
 	if len(b.HavingCond) > 0 {
 		buf.WriteString(" HAVING ")
 		err := And(b.HavingCond...).Build(d, buf)
@@ -113,15 +118,27 @@ func (b *SelectStmt) Build(d Dialect, buf Buffer) error {
 		}
 	}
 
-	if b.LimitCount >= 0 {
-		buf.WriteString(" LIMIT ")
-		buf.WriteString(fmt.Sprint(b.LimitCount))
+	if d.NoOffset() {
+		if b.OffsetCount >= 0 && b.LimitCount > 0 {
+			buf.WriteString(" LIMIT ")
+			buf.WriteString(fmt.Sprint(b.OffsetCount))
+			buf.WriteString(", ")
+			buf.WriteString(fmt.Sprint(b.LimitCount))
+		} else if b.LimitCount > 0 {
+			buf.WriteString(" LIMIT ")
+			buf.WriteString(fmt.Sprint(b.LimitCount))
+		}
+	} else {
+		if b.LimitCount >= 0 {
+			buf.WriteString(" LIMIT ")
+			buf.WriteString(fmt.Sprint(b.LimitCount))
+		}
+		if b.OffsetCount >= 0 {
+			buf.WriteString(" OFFSET ")
+			buf.WriteString(fmt.Sprint(b.OffsetCount))
+		}
 	}
 
-	if b.OffsetCount >= 0 {
-		buf.WriteString(" OFFSET ")
-		buf.WriteString(fmt.Sprint(b.OffsetCount))
-	}
 	return nil
 }
 
@@ -185,6 +202,12 @@ func (b *SelectStmt) GroupBy(col ...string) *SelectStmt {
 	for _, group := range col {
 		b.Group = append(b.Group, Expr(group))
 	}
+	return b
+}
+
+// https://clickhouse.yandex/reference_en.html#WITH TOTALS modifier
+func (b *SelectStmt) WithTotals() *SelectStmt {
+	b.HasWithTotals = true
 	return b
 }
 

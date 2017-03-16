@@ -121,6 +121,11 @@ func (b *SelectBuilder) GroupBy(col ...string) *SelectBuilder {
 	return b
 }
 
+func (b *SelectBuilder) WithTotals() *SelectBuilder {
+	b.SelectStmt.WithTotals()
+	return b
+}
+
 func (b *SelectBuilder) Having(query interface{}, value ...interface{}) *SelectBuilder {
 	b.SelectStmt.Having(query, value...)
 	return b

@@ -1,4 +1,4 @@
-package dbr
+package chdbr
 
 type SelectBuilder struct {
 	runner
@@ -86,23 +86,23 @@ func (b *SelectBuilder) LoadValues(value interface{}) (int, error) {
 	return query(b.runner, b.EventReceiver, b, b.Dialect, value)
 }
 
-func (b *SelectBuilder) Join(table, on interface{}) *SelectBuilder {
-	b.SelectStmt.Join(table, on)
+func (b *SelectBuilder) AnyInnerJoin(table interface{}, usings ...string) *SelectBuilder {
+	b.SelectStmt.AnyInnerJoin(table, usings...)
 	return b
 }
 
-func (b *SelectBuilder) LeftJoin(table, on interface{}) *SelectBuilder {
-	b.SelectStmt.LeftJoin(table, on)
+func (b *SelectBuilder) AnyLeftJoin(table interface{}, usings ...string) *SelectBuilder {
+	b.SelectStmt.AnyLeftJoin(table, usings...)
 	return b
 }
 
-func (b *SelectBuilder) RightJoin(table, on interface{}) *SelectBuilder {
-	b.SelectStmt.RightJoin(table, on)
+func (b *SelectBuilder) AllInnerJoin(table interface{}, usings ...string) *SelectBuilder {
+	b.SelectStmt.AllInnerJoin(table, usings...)
 	return b
 }
 
-func (b *SelectBuilder) FullJoin(table, on interface{}) *SelectBuilder {
-	b.SelectStmt.FullJoin(table, on)
+func (b *SelectBuilder) AllLeftJoin(table interface{}, usings ...string) *SelectBuilder {
+	b.SelectStmt.AllLeftJoin(table, usings...)
 	return b
 }
 

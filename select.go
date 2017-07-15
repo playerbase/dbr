@@ -1,4 +1,4 @@
-package dbr
+package chdbr
 
 import "fmt"
 
@@ -235,23 +235,23 @@ func (b *SelectStmt) Offset(n uint64) *SelectStmt {
 }
 
 // Join joins table on condition
-func (b *SelectStmt) Join(table, on interface{}) *SelectStmt {
-	b.JoinTable = append(b.JoinTable, join(inner, table, on))
+func (b *SelectStmt) AnyInnerJoin(table interface{}, usings ...string) *SelectStmt {
+	b.JoinTable = append(b.JoinTable, join(any, inner, table, usings...))
 	return b
 }
 
-func (b *SelectStmt) LeftJoin(table, on interface{}) *SelectStmt {
-	b.JoinTable = append(b.JoinTable, join(left, table, on))
+func (b *SelectStmt) AnyLeftJoin(table interface{}, usings ...string) *SelectStmt {
+	b.JoinTable = append(b.JoinTable, join(any, left, table, usings...))
 	return b
 }
 
-func (b *SelectStmt) RightJoin(table, on interface{}) *SelectStmt {
-	b.JoinTable = append(b.JoinTable, join(right, table, on))
+func (b *SelectStmt) AllInnerJoin(table interface{}, usings ...string) *SelectStmt {
+	b.JoinTable = append(b.JoinTable, join(all, inner, table, usings...))
 	return b
 }
 
-func (b *SelectStmt) FullJoin(table, on interface{}) *SelectStmt {
-	b.JoinTable = append(b.JoinTable, join(full, table, on))
+func (b *SelectStmt) AllLeftJoin(table interface{}, usings ...string) *SelectStmt {
+	b.JoinTable = append(b.JoinTable, join(all, left, table, usings...))
 	return b
 }
 

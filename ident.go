@@ -1,4 +1,4 @@
-package dbr
+package chdbr
 
 // identifier is a type of string
 type I string

@@ -1,9 +1,10 @@
-package dbr
+package chdbr
 
 import (
 	"testing"
 
-	"github.com/playerbase/dbr/dialect"
+	"playerbase/chdbr/dialect"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -11,7 +12,7 @@ func TestSelectStmt(t *testing.T) {
 	buf := NewBuffer()
 	builder := Select("a", "b").
 		From(Select("a").From("table")).
-		LeftJoin("table2", "table.a1 = table.a2").
+		AnyLeftJoin("table2", "a").
 		Distinct().
 		Where(Eq("c", 1)).
 		GroupBy("d").
@@ -19,7 +20,7 @@ func TestSelectStmt(t *testing.T) {
 		OrderAsc("f").
 		Limit(3).
 		Offset(4)
-	err := builder.Build(dialect.MySQL, buf)
+	err := builder.Build(dialect.Clickhouse, buf)
 	assert.NoError(t, err)
 	assert.Equal(t, "SELECT DISTINCT a, b FROM ? LEFT JOIN `table2` ON table.a1 = table.a2 WHERE (`c` = ?) GROUP BY d HAVING (`e` = ?) ORDER BY f ASC LIMIT 3 OFFSET 4", buf.String())
 	// two functions cannot be compared
@@ -29,6 +30,6 @@ func TestSelectStmt(t *testing.T) {
 func BenchmarkSelectSQL(b *testing.B) {
 	buf := NewBuffer()
 	for i := 0; i < b.N; i++ {
-		Select("a", "b").From("table").Where(Eq("c", 1)).OrderAsc("d").Build(dialect.MySQL, buf)
+		Select("a", "b").From("table").Where(Eq("c", 1)).OrderAsc("d").Build(dialect.Clickhouse, buf)
 	}
 }

@@ -1,4 +1,4 @@
-package dbr
+package chdbr
 
 type direction bool
 

@@ -1,4 +1,4 @@
-package dbr
+package chdbr
 
 // UpdateStmt builds `UPDATE ...`
 type UpdateStmt struct {

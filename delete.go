@@ -1,4 +1,4 @@
-package dbr
+package chdbr
 
 // DeleteStmt builds `DELETE ...`
 type DeleteStmt struct {

@@ -1,9 +1,10 @@
-package dbr
+package chdbr
 
 import (
 	"testing"
 
-	"github.com/playerbase/dbr/dialect"
+	"playerbase/chdbr/dialect"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,7 +19,7 @@ func TestInsertStmt(t *testing.T) {
 		A: 2,
 		C: "two",
 	})
-	err := builder.Build(dialect.MySQL, buf)
+	err := builder.Build(dialect.Clickhouse, buf)
 	assert.NoError(t, err)
 	assert.Equal(t, "INSERT INTO `table` (`a`,`b`) VALUES (?,?), (?,?)", buf.String())
 	assert.Equal(t, []interface{}{1, "one", 2, "two"}, buf.Value())
@@ -27,7 +28,7 @@ func TestInsertStmt(t *testing.T) {
 func BenchmarkInsertValuesSQL(b *testing.B) {
 	buf := NewBuffer()
 	for i := 0; i < b.N; i++ {
-		InsertInto("table").Columns("a", "b").Values(1, "one").Build(dialect.MySQL, buf)
+		InsertInto("table").Columns("a", "b").Values(1, "one").Build(dialect.Clickhouse, buf)
 	}
 }
 
@@ -37,6 +38,6 @@ func BenchmarkInsertRecordSQL(b *testing.B) {
 		InsertInto("table").Columns("a", "b").Record(&insertTest{
 			A: 2,
 			C: "two",
-		}).Build(dialect.MySQL, buf)
+		}).Build(dialect.Clickhouse, buf)
 	}
 }

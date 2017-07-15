@@ -1,4 +1,4 @@
-package dbr
+package chdbr
 
 // EventReceiver gets events from dbr methods for logging purposes
 type EventReceiver interface {

@@ -1,11 +1,12 @@
-package dbr
+package chdbr
 
 import (
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/playerbase/dbr/dialect"
+	"playerbase/chdbr/dialect"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -43,7 +44,7 @@ func TestInterpolateIgnoreBinary(t *testing.T) {
 	} {
 		i := interpolator{
 			Buffer:       NewBuffer(),
-			Dialect:      dialect.MySQL,
+			Dialect:      dialect.Clickhouse,
 			IgnoreBinary: true,
 		}
 
@@ -137,7 +138,7 @@ func TestInterpolateForDialect(t *testing.T) {
 			want:  "NULL",
 		},
 	} {
-		s, err := InterpolateForDialect(test.query, test.value, dialect.MySQL)
+		s, err := InterpolateForDialect(test.query, test.value, dialect.Clickhouse)
 		assert.NoError(t, err)
 		assert.Equal(t, test.want, s)
 	}
@@ -157,6 +158,7 @@ func TestCommonSQLInjections(t *testing.T) {
 			// SELECT the name back and ensure it's equal to the injection attempt
 			var name string
 			err = sess.Select("name").From("dbr_people").OrderDir("id", false).Limit(1).LoadValue(&name)
+			assert.NoError(t, err)
 			assert.Equal(t, injectionAttempt, name)
 		}
 	}

@@ -1,4 +1,4 @@
-package dbr
+package chdbr
 
 // Builder builds sql in one dialect like MySQL/PostgreSQL
 // e.g. XxxBuilder

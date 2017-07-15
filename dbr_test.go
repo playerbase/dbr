@@ -1,16 +1,14 @@
-package dbr
+package chdbr
 
 import (
 	"bytes"
 	"fmt"
 	"log"
 	"os"
+	"playerbase/chdbr/dialect"
 	"testing"
 
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/playerbase/dbr/dialect"
-	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/kshvakov/clickhouse"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -29,20 +27,14 @@ func nextID() int64 {
 }
 
 const (
-	mysqlDSN    = "root@unix(/tmp/mysql.sock)/uservoice_test?charset=utf8"
-	postgresDSN = "postgres://postgres@localhost:5432/uservoice_test?sslmode=disable"
-	sqlite3DSN  = ":memory:"
+	clickhouseDSN = "tcp://localhost:9000?debug=true"
 )
 
 func createSession(driver, dsn string) *Session {
 	var testDSN string
 	switch driver {
-	case "mysql":
-		testDSN = os.Getenv("DBR_TEST_MYSQL_DSN")
-	case "postgres":
-		testDSN = os.Getenv("DBR_TEST_POSTGRES_DSN")
-	case "sqlite3":
-		testDSN = os.Getenv("DBR_TEST_SQLITE3_DSN")
+	case "clickhouse":
+		testDSN = os.Getenv("DBR_TEST_CLICKHOUSE_DSN")
 	}
 	if testDSN != "" {
 		dsn = testDSN
@@ -57,23 +49,20 @@ func createSession(driver, dsn string) *Session {
 }
 
 var (
-	mysqlSession          = createSession("mysql", mysqlDSN)
-	postgresSession       = createSession("postgres", postgresDSN)
-	postgresBinarySession = createSession("postgres", postgresDSN+"&binary_parameters=yes")
-	sqlite3Session        = createSession("sqlite3", sqlite3DSN)
+	chSession = createSession("clickhouse", clickhouseDSN)
 
 	// all test sessions should be here
-	testSession = []*Session{mysqlSession, postgresSession, sqlite3Session}
+	testSession = []*Session{chSession}
 )
 
 type dbrPerson struct {
-	Id    int64
+	ID    int64
 	Name  string
 	Email string
 }
 
 type nullTypedRecord struct {
-	Id         int64
+	ID         int64
 	StringVal  NullString
 	Int64Val   NullInt64
 	Float64Val NullFloat64
@@ -84,12 +73,8 @@ type nullTypedRecord struct {
 func reset(sess *Session) {
 	var autoIncrementType string
 	switch sess.Dialect {
-	case dialect.MySQL:
+	case dialect.Clickhouse:
 		autoIncrementType = "serial PRIMARY KEY"
-	case dialect.PostgreSQL:
-		autoIncrementType = "serial PRIMARY KEY"
-	case dialect.SQLite3:
-		autoIncrementType = "integer PRIMARY KEY"
 	}
 	for _, v := range []string{
 		`DROP TABLE IF EXISTS dbr_people`,
@@ -114,14 +99,6 @@ func reset(sess *Session) {
 			log.Fatalf("Failed to execute statement: %s, Got error: %s", v, err)
 		}
 	}
-}
-
-func BenchmarkByteaNoBinaryEncode(b *testing.B) {
-	benchmarkBytea(b, postgresSession)
-}
-
-func BenchmarkByteaBinaryEncode(b *testing.B) {
-	benchmarkBytea(b, postgresBinarySession)
 }
 
 func benchmarkBytea(b *testing.B, sess *Session) {
@@ -150,10 +127,7 @@ func TestBasicCRUD(t *testing.T) {
 			Email: "jonathan@uservoice.com",
 		}
 		insertColumns := []string{"name", "email"}
-		if sess.Dialect == dialect.PostgreSQL {
-			jonathan.Id = nextID()
-			insertColumns = []string{"id", "name", "email"}
-		}
+
 		// insert
 		result, err := sess.InsertInto("dbr_people").Columns(insertColumns...).Record(&jonathan).Exec()
 		assert.NoError(t, err)
@@ -162,13 +136,13 @@ func TestBasicCRUD(t *testing.T) {
 		assert.NoError(t, err)
 		assert.EqualValues(t, 1, rowsAffected)
 
-		assert.True(t, jonathan.Id > 0)
+		assert.True(t, jonathan.ID > 0)
 		// select
 		var people []dbrPerson
-		count, err := sess.Select("*").From("dbr_people").Where(Eq("id", jonathan.Id)).LoadStructs(&people)
+		count, err := sess.Select("*").From("dbr_people").Where(Eq("id", jonathan.ID)).LoadStructs(&people)
 		assert.NoError(t, err)
 		if assert.Equal(t, 1, count) {
-			assert.Equal(t, jonathan.Id, people[0].Id)
+			assert.Equal(t, jonathan.ID, people[0].ID)
 			assert.Equal(t, jonathan.Name, people[0].Name)
 			assert.Equal(t, jonathan.Email, people[0].Email)
 		}
@@ -184,7 +158,7 @@ func TestBasicCRUD(t *testing.T) {
 		assert.Equal(t, 1, len(ids))
 
 		// update
-		result, err = sess.Update("dbr_people").Where(Eq("id", jonathan.Id)).Set("name", "jonathan1").Exec()
+		result, err = sess.Update("dbr_people").Where(Eq("id", jonathan.ID)).Set("name", "jonathan1").Exec()
 		assert.NoError(t, err)
 
 		rowsAffected, err = result.RowsAffected()
@@ -196,7 +170,7 @@ func TestBasicCRUD(t *testing.T) {
 		assert.EqualValues(t, 1, n.Int64)
 
 		// delete
-		result, err = sess.DeleteFrom("dbr_people").Where(Eq("id", jonathan.Id)).Exec()
+		result, err = sess.DeleteFrom("dbr_people").Where(Eq("id", jonathan.ID)).Exec()
 		assert.NoError(t, err)
 
 		rowsAffected, err = result.RowsAffected()

@@ -1,9 +1,10 @@
-package dbr
+package chdbr
 
 import (
 	"testing"
 
-	"github.com/playerbase/dbr/dialect"
+	"playerbase/chdbr/dialect"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -65,7 +66,7 @@ func TestCondition(t *testing.T) {
 		},
 	} {
 		buf := NewBuffer()
-		err := test.cond.Build(dialect.MySQL, buf)
+		err := test.cond.Build(dialect.Clickhouse, buf)
 		assert.NoError(t, err)
 		assert.Equal(t, test.query, buf.String())
 		assert.Equal(t, test.value, buf.Value())

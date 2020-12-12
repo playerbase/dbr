@@ -8,7 +8,7 @@ import (
 	"playerbase/chdbr/dialect"
 	"testing"
 
-	_ "github.com/kshvakov/clickhouse"
+	_ "github.com/ClickHouse/clickhouse-go"
 	"github.com/stretchr/testify/assert"
 )
 
